@@ -67,25 +67,123 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Grafik Pendapatan {{ tanggal_indonesia($tanggal_awal, false) }} s/d {{ tanggal_indonesia($tanggal_akhir, false) }}</h3>
             </div>
-            <!-- /.box-header -->
             <div class="box-body">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="chart">
-                            <!-- Sales Chart Canvas -->
                             <canvas id="salesChart" style="height: 180px;"></canvas>
                         </div>
-                        <!-- /.chart-responsive -->
                     </div>
                 </div>
-                <!-- /.row -->
             </div>
         </div>
-        <!-- /.box -->
     </div>
-    <!-- /.col -->
 </div>
-<!-- /.row (main row) -->
+
+<!-- Card for Best Selling Products -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="box box-success">
+            <div class="box-header with-border">
+                <h3 class="box-title">Produk Terlaris</h3>
+            </div>
+            <div class="box-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Total Terjual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($produkTerlaris as $produk)
+                            <tr>
+                                <td>{{ $produk->nama_produk }}</td>
+                                <td>{{ $produk->total_terjual }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card for Low Stock Products -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="box box-danger">
+            <div class="box-header with-border">
+                <h3 class="box-title">Produk dengan Stok Paling Sedikit</h3>
+            </div>
+            <div class="box-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Stok</th>
+                            <th>Merk</th>
+                            <th>Kategori</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($stokLow as $produk)
+                            <tr>
+                                <td>{{ $produk->nama_produk }}</td>
+                                <td>{{ $produk->stok_produk }}</td>
+                                <td>{{ $produk->merk }}</td>
+                                <td>{{ $produk->kategori }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card for Today's Best Selling Products -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Produk Terlaris Hari Ini</h3>
+            </div>
+            <div class="box-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nama Produk</th>
+                            <th>Merk</th>
+                            <th>Harga Jual</th>
+                            <th>Total Terjual</th>
+                            <th>Total Pendapatan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($produkTerlarisHarian as $produk)
+                            <tr>
+                                <td>{{ $produk->nama_produk }}</td>
+                                <td>{{ $produk->merk }}</td>
+                                <td>Rp{{ number_format($produk->harga_jual_produk, 0, ',', '.') }}</td>
+                                <td>{{ $produk->total_terjual }}</td>
+                                <td>Rp{{ number_format($produk->total_pendapatan, 0, ',', '.') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="box-footer">
+    <div class="pagination-wrapper text-center">
+        {{ $produkTerlarisHarian->links() }}
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+
+
+
 @endsection
 
 @push('scripts')

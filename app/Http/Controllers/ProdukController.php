@@ -135,38 +135,21 @@ class ProdukController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validasi input data
-    $request->validate([
-        'nama_produk' => 'required|string|max:255',
-        'id_kategori' => 'required|integer',
-        'harga_jual' => 'required|numeric',
-        'stok_produk' => 'required|integer',
-        'merk' => 'required|string|max:100',
-        'harga_beli_produk' => 'required|numeric',
-    ]);
+        $produk = Produk::where('kode_produk', $id)->first();
+        if (!$produk) {
+            return response()->json(['message' => 'Produk not found'], 404);
+        }
 
-    // Cari produk berdasarkan kode_produk
-    $produk = Produk::where('kode_produk', $id)->first();
-    if (!$produk) {
-        return response()->json(['message' => 'Produk not found'], 404);
-    }
+        $detailProduk = DetailProduk::where('kode_produk', $id)->first();
+        if (!$detailProduk) {
+            return response()->json(['message' => 'Detail Produk not found'], 404);
+        }
 
-    // Panggil prosedur tersimpan
-    try {
-        DB::statement('CALL update_produk(?, ?, ?, ?, ?, ?, ?)', [
-            $produk->kode_produk, // Ambil id_produk dari produk
-            $request->input('nama_produk'),
-            $request->input('id_kategori'),
-            $request->input('harga_beli_produk'),
-            $request->input('harga_jual'),
-            $request->input('merk'),
-            $request->input('stok_produk'),
-        ]);
+        $produk->update($request->only(['nama_produk', 'harga_jual', 'id_kategori']));
 
-        return response()->json(['message' => 'Data berhasil diperbarui'], 200);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error updating data', 'error' => $e->getMessage()], 500);
-    }      
+        $detailProduk->update($request->only(['stok_produk', 'merk', 'harga_beli_produk']));
+
+        return response()->json('Data berhasil disimpan', 200);
     }
 
     /**

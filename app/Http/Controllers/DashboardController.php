@@ -11,57 +11,81 @@ use App\Models\Produk;
 use App\Models\Supplier;
 use App\Models\StokLow; // Import model StokLow
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB; // Tambahkan ini untuk mengakses DB
+use App\Models\ProdukTerlaris; // Tambahkan di bagian atas
 
 class DashboardController extends Controller
 {
     public function index()
-    {
-        $kategori = Kategori::count();
-        $produk = Produk::count();
-        $supplier = Supplier::count();
-        $member = Kasir::count();
+{
+    $kategori = Kategori::count();
+    $produk = Produk::count();
+    $supplier = Supplier::count();
+    $member = Kasir::count();
 
-        // Ambil data produk dengan stok rendah dari view stok_low
-        $produkLowStok = StokLow::all();
-        
-        $tanggal_awal = date('Y-m-01');
-        $tanggal_akhir = date('Y-m-d');
+    // Ambil data produk dengan stok rendah dari view stok_low
+    $produkLowStok = StokLow::all();
 
-        $data_tanggal = array();
-        $data_pendapatan = array();
+    // Produk terlaris
+    $produkTerlaris = ProdukTerlaris::orderBy('total_terjual', 'DESC')->limit(5)->get();
 
-        while (strtotime($tanggal_awal) <= strtotime($tanggal_akhir)) {
-            $data_tanggal[] = (int) substr($tanggal_awal, 8, 2);
+    // Produk terlaris hari ini (dengan pagination)
+$produkTerlarisHarian = DB::table('view_produk_terjual_harian')
+->whereDate('tanggal', today()) // Mengambil data untuk hari ini
+->orderByDesc('total_terjual')  // Mengurutkan berdasarkan jumlah terjual
+->paginate(10); // Paginasi dengan 10 item per halaman
 
-            $total_penjualan = 0;
-            $penjualans = Penjualan::with('detailPenjualan')->where('created_at', 'LIKE', "%$tanggal_awal%")->get();
-            foreach ($penjualans as $penjualan) {
-                foreach ($penjualan->detailPenjualan as $detail) {
-                    $total_penjualan += $detail->harga_jual_produk * $detail->jumlah;
-                }
+
+    $tanggal_awal = date('Y-m-01');
+    $tanggal_akhir = date('Y-m-d');
+
+    $data_tanggal = [];
+    $data_pendapatan = [];
+
+    while (strtotime($tanggal_awal) <= strtotime($tanggal_akhir)) {
+        $data_tanggal[] = (int) substr($tanggal_awal, 8, 2);
+
+        $total_penjualan = 0;
+        $penjualans = Penjualan::with('detailPenjualan')->where('created_at', 'LIKE', "%$tanggal_awal%")->get();
+        foreach ($penjualans as $penjualan) {
+            foreach ($penjualan->detailPenjualan as $detail) {
+                $total_penjualan += $detail->harga_jual_produk * $detail->jumlah;
             }
-
-
-            $total_pembelian = 0;
-            $pembelians = Pembelian::with('detilPembelian')->where('created_at', 'LIKE', "%$tanggal_awal%")->get();
-            foreach ($pembelians as $pembelian) {
-                foreach ($pembelian->detilPembelian as $detail) {
-                    $total_pembelian += $detail->harga_beli_produk * $detail->jumlah;
-                }
-            }
-
-            $pendapatan = $total_penjualan - $total_pembelian;
-            $data_pendapatan[] += $pendapatan;
-
-            $tanggal_awal = date('Y-m-d', strtotime("+1 day", strtotime($tanggal_awal)));
         }
 
-        $tanggal_awal = date('Y-m-01');
-
-        if (auth()->user()->level == 1) {
-            return view('admin.dashboard', compact('kategori', 'produk', 'supplier', 'tanggal_awal', 'tanggal_akhir', 'data_tanggal', 'data_pendapatan', 'produkLowStok'));
-        } else {
-            return view('kasir.dashboard');
+        $total_pembelian = 0;
+        $pembelians = Pembelian::with('detilPembelian')->where('created_at', 'LIKE', "%$tanggal_awal%")->get();
+        foreach ($pembelians as $pembelian) {
+            foreach ($pembelian->detilPembelian as $detail) {
+                $total_pembelian += $detail->harga_beli_produk * $detail->jumlah;
+            }
         }
+
+        $pendapatan = $total_penjualan - $total_pembelian;
+        $data_pendapatan[] = $pendapatan;
+
+        $tanggal_awal = date('Y-m-d', strtotime("+1 day", strtotime($tanggal_awal)));
     }
+
+    $tanggal_awal = date('Y-m-01');
+
+    if (auth()->user()->level == 1) {
+        return view('admin.dashboard', compact(
+            'kategori',
+            'produk',
+            'supplier',
+            'tanggal_awal',
+            'tanggal_akhir',
+            'data_tanggal',
+            'data_pendapatan',
+            'produkLowStok',
+            'produkTerlaris', // Kirim data produk terlaris
+            'produkTerlarisHarian' // Kirim data produk terlaris hari ini
+        ))->with('stokLow', $produkLowStok);
+    } else {
+        return view('kasir.dashboard');
+    }
+}
+
+
 }
