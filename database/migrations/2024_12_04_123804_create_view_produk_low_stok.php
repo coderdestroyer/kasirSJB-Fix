@@ -14,12 +14,12 @@ class CreateViewProdukLowStok extends Migration
      */
     public function up()
     {
-        DB::unprepared('
+        DB::statement("
             CREATE VIEW stok_low AS
             SELECT 
-                p.nama_produk,
-                dp.stok_produk,
-                dp.merk,
+                p.nama_produk AS nama_produk,
+                dp.stok_produk AS stok_produk,
+                dp.merk AS merk,
                 k.nama_kategori AS kategori
             FROM 
                 produk p
@@ -29,7 +29,7 @@ class CreateViewProdukLowStok extends Migration
                 kategori k ON p.id_kategori = k.id_kategori
             WHERE 
                 dp.stok_produk < 10;
-        ');
+        ");
     }
 
     /**
@@ -39,6 +39,6 @@ class CreateViewProdukLowStok extends Migration
      */
     public function down()
     {
-        DB::unprepared('DROP VIEW IF EXISTS stok_low');
+        DB::statement("DROP VIEW IF EXISTS stok_low;");
     }
 }

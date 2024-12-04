@@ -14,10 +14,8 @@ class CreateProcedureUpdateProduk extends Migration
      */
     public function up()
     {
-        DB::unprepared('
-        DROP PROCEDURE IF EXISTS update_produk;
-
-        CREATE PROCEDURE update_produk(
+        DB::unprepared("
+        CREATE DEFINER=`root`@`localhost` PROCEDURE `update_produk`(
             IN p_kode_produk VARCHAR(50),
             IN p_nama_produk VARCHAR(255),
             IN p_kategori INT,
@@ -27,13 +25,16 @@ class CreateProcedureUpdateProduk extends Migration
             IN p_stok_produk INT
         )
         BEGIN
-            DECLARE EXIT HANDLER FOR SQLEXCEPTION
+            DECLARE error_occurred INT DEFAULT 0;
+
+            -- Tangani error dengan rollback
+            DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
             BEGIN
-                -- Rollback if any error occurs
+                SET error_occurred = 1;
                 ROLLBACK;
             END;
 
-            -- Start a transaction
+            -- Mulai transaksi
             START TRANSACTION;
 
             -- Update tabel produk
@@ -54,11 +55,12 @@ class CreateProcedureUpdateProduk extends Migration
             WHERE 
                 kode_produk = p_kode_produk;
 
-            -- Commit transaction if everything is successful
-            COMMIT;
-        END
-    ');
-
+            -- Jika tidak ada error, commit transaksi
+            IF error_occurred = 0 THEN
+                COMMIT;
+            END IF;  
+        END;
+        ");
     }
 
     /**
@@ -68,7 +70,6 @@ class CreateProcedureUpdateProduk extends Migration
      */
     public function down()
     {
-        DB::unprepared('DROP PROCEDURE IF EXISTS update_produk');
-
+        Schema::dropIfExists('procedure_update_produk');
     }
 }

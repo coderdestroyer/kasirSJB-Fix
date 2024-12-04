@@ -15,17 +15,17 @@ class CreateViewProdukTerlaris extends Migration
     public function up()
     {
         DB::statement("
-        CREATE VIEW produk_terlaris AS
-        SELECT 
-            pd.nama_produk,
-            SUM(pd.jumlah) AS total_terjual
-        FROM 
-            penjualan_detail pd
-        GROUP BY 
-            pd.nama_produk
-        ORDER BY 
-            total_terjual DESC;
-    ");
+            CREATE VIEW produk_terlaris AS
+            SELECT 
+                pd.nama_produk AS nama_produk,
+                SUM(pd.jumlah) AS total_terjual
+            FROM 
+                penjualan_detail pd
+            GROUP BY 
+                pd.nama_produk
+            ORDER BY 
+                total_terjual DESC;
+        ");
     }
 
     /**
@@ -35,6 +35,6 @@ class CreateViewProdukTerlaris extends Migration
      */
     public function down()
     {
-        DB::statement('DROP VIEW IF EXISTS produk_terlaris');
+        DB::statement("DROP VIEW IF EXISTS produk_terlaris;");
     }
 }

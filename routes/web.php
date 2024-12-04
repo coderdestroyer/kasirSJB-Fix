@@ -104,5 +104,7 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
-
+    Route::get('/logs/data', [LogController::class, 'data'])->name('logs.data');
+    Route::delete('/logs/{id}', [LogController::class, 'destroy'])->name('logs.destroy');
+    
 });

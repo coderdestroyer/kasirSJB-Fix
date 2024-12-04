@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class CreateViewLaporanPembelianBulanan extends Migration
+class CreateViewPembelianBelumLunas extends Migration
 {
     /**
      * Run the migrations.
@@ -14,20 +14,24 @@ class CreateViewLaporanPembelianBulanan extends Migration
      */
     public function up()
     {
-        DB::unprepared('
-            CREATE VIEW laporan_pembelian_bulanan AS
+        DB::statement("
+            CREATE VIEW pembelian_belum_lunas AS
             SELECT 
-                MONTH(p.tanggal_pembelian) AS bulan,
-                YEAR(p.tanggal_pembelian) AS tahun,
-                SUM(pd.jumlah) AS total_produk,
-                SUM(pd.harga_beli_produk * pd.jumlah) AS total_harga
+                p.id_pembelian AS id_pembelian,
+                s.nama AS nama,
+                SUM(pd.harga_beli_produk * pd.jumlah) AS total_hutang
             FROM 
                 pembelian_detail pd
             JOIN 
                 pembelian p ON pd.id_pembelian = p.id_pembelian
+            JOIN 
+                supplier s ON p.id_supplier = s.id_supplier
+            WHERE 
+                pd.status = 'belum lunas'
             GROUP BY 
-                YEAR(p.tanggal_pembelian), MONTH(p.tanggal_pembelian);
-        ');
+                p.id_pembelian, 
+                s.nama;
+        ");
     }
 
     /**
@@ -37,6 +41,6 @@ class CreateViewLaporanPembelianBulanan extends Migration
      */
     public function down()
     {
-        DB::unprepared('DROP VIEW IF EXISTS laporan_pembelian_bulanan');
+        DB::statement("DROP VIEW IF EXISTS pembelian_belum_lunas;");
     }
 }
