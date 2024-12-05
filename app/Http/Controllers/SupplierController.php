@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
 
@@ -49,9 +49,21 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        $supplier = Supplier::create($request->all());
+        $nama = $request->input('nama');
+        $alamat = $request->input('alamat');
+        $telepon = $request->input('telepon');
+        $created_at = now(); // Waktu saat ini untuk created_at
+        $updated_at = now(); // Waktu saat ini untuk updated_at
+
+        // Memanggil prosedur store_supplier
+        DB::statement('CALL store_supplier(?, ?, ?, ?, ?)', [
+            $nama, $alamat, $telepon, $created_at, $updated_at
+        ]);
 
         return response()->json('Data berhasil disimpan', 200);
+        // $supplier = Supplier::create($request->all());
+
+        // return response()->json('Data berhasil disimpan', 200);
     }
 
     /**
@@ -87,9 +99,20 @@ class SupplierController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $supplier = Supplier::find($id)->update($request->all());
+        $nama = $request->input('nama');
+        $alamat = $request->input('alamat');
+        $telepon = $request->input('telepon');
+        $updated_at = now(); // Waktu saat ini untuk updated_at
 
-        return response()->json('Data berhasil disimpan', 200);
+        // Memanggil prosedur update_supplier
+        DB::statement('CALL update_supplier(?, ?, ?, ?, ?)', [
+            $id, $nama, $alamat, $telepon, $updated_at
+        ]);
+
+        return response()->json('Data berhasil diperbarui', 200);
+        // $supplier = Supplier::find($id)->update($request->all());
+
+        // return response()->json('Data berhasil disimpan', 200);
     }
 
     /**

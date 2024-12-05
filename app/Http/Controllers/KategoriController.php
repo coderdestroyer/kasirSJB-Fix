@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Kategori;
 
@@ -54,11 +54,24 @@ class KategoriController extends Controller
      */
     public function store(Request $request)
     {
-        $kategori = new Kategori();
-        $kategori->nama_kategori = $request->nama_kategori;
-        $kategori->save();
+        // Validasi input
+        $validated = $request->validate([
+            'nama_kategori' => 'required|string|max:255',
+        ]);
 
-        return response()->json('Data berhasil disimpan', 200);
+        // Menyiapkan parameter untuk prosedur
+        $nama_kategori = $validated['nama_kategori'];
+
+        // Memanggil prosedur `store_kategori` dengan parameter nama_kategori
+        DB::select("CALL store_kategori(?)", [$nama_kategori]);
+
+        // Mengembalikan respon jika sukses
+        return response()->json('Kategori berhasil disimpan', 200);
+        // $kategori = new Kategori();
+        // $kategori->nama_kategori = $request->nama_kategori;
+        // $kategori->save();
+
+        // return response()->json('Data berhasil disimpan', 200);
     }
 
     /**
@@ -94,11 +107,24 @@ class KategoriController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $kategori = Kategori::find($id);
-        $kategori->nama_kategori = $request->nama_kategori;
-        $kategori->update();
+        // Validasi input
+        $validated = $request->validate([
+            'nama_kategori' => 'required|string|max:255',
+        ]);
 
-        return response()->json('Data berhasil disimpan', 200);
+        // Menyiapkan parameter untuk prosedur
+        $nama_kategori = $validated['nama_kategori'];
+        
+        // Memanggil prosedur `update_kategori` dengan parameter id dan nama_kategori
+        DB::select("CALL update_kategori(?, ?)", [$id, $nama_kategori]);
+
+        // Mengembalikan respon jika sukses
+        return response()->json('Kategori berhasil diperbarui', 200);
+        // $kategori = Kategori::find($id);
+        // $kategori->nama_kategori = $request->nama_kategori;
+        // $kategori->update();
+
+        // return response()->json('Data berhasil disimpan', 200);
     }
 
     /**
