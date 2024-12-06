@@ -9,6 +9,7 @@ use App\Models\Produk;
 use App\Models\DetailProduk;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PenjualanDetailController extends Controller
 {
@@ -33,6 +34,8 @@ class PenjualanDetailController extends Controller
 
     public function data($id)
     {
+        $totalHarga = DB::selectOne("SELECT total_harga(?) AS total_price", [$id]);
+
         $detail = PenjualanDetail::where('nomor_invoice', $id)
             ->get();
     
@@ -50,17 +53,18 @@ class PenjualanDetailController extends Controller
                                     <button onclick="deleteData(`'. route('transaksi.destroy', $item->id_penjualan_detail) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
                                   </div>';
             $data[] = $row;
-    
-            $total += ($item->harga_jual_produk ?? 0) * $item->jumlah;
+
             $total_item += $item->jumlah;
         }
+
+        $formattedTotal = number_format($totalHarga->total_price ?? 0, 2, ',', '.');
     
         $data[] = [
-            'nama_produk' => '<div class="total hide">'. $total .'</div>
+            'nama_produk' => '<div class="total hide">'. $totalHarga->total_price .'</div>
                 <div class="total_item hide">'. $total_item .'</div>',
             'harga_jual'  => '',
             'jumlah'      => '',
-            'subtotal'    => '',
+            'subtotal'    => '<strong>Total: Rp. ' . $formattedTotal . '</strong>',
             'aksi'        => '',
         ];
     
@@ -110,14 +114,15 @@ class PenjualanDetailController extends Controller
     public function loadForm($diskon = 0, $total = 0, $diterima = 0)
     {
         $bayar   = $total - ($diskon / 100 * $total);
-        $kembali = ($diterima != 0) ? $diterima - $bayar : 0;
+        $kembali = DB::selectOne("SELECT hitung_kembalian(?, ?) AS kembalian", [$bayar, $diterima]);
+        $formattedKembalian = number_format($kembali->kembalian ?? 0, 2, ',', '.');
         $data    = [
             'totalrp' => format_uang($total),
             'bayar' => $bayar,
             'bayarrp' => format_uang($bayar),
             'terbilang' => ucwords(terbilang($bayar). ' Rupiah'),
-            'kembalirp' => format_uang($kembali),
-            'kembali_terbilang' => ucwords(terbilang($kembali). ' Rupiah'),
+            'kembalirp' => 'Rp. ' . $formattedKembalian,
+            'kembali_terbilang' => ucwords(terbilang($kembali->kembalian ?? 0). ' Rupiah'),
         ];
 
         return response()->json($data);
