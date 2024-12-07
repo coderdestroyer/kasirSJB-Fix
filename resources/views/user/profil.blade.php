@@ -39,6 +39,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+    <label for="alamat">Alamat</label>
+    <input type="text" name="alamat" id="alamat" class="form-control">
+</div>
+<div class="form-group">
+    <label for="nomor_hp">Nomor Handphone</label>
+    <input type="text" name="nomor_hp" id="nomor_hp" class="form-control">
+</div>
+
                     <div class="form-group row">
                         <label for="old_password" class="col-lg-2 control-label">Password Lama</label>
                         <div class="col-lg-6">
