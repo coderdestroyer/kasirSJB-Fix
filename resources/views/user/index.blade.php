@@ -86,28 +86,29 @@
     }
 
     function editForm(url) {
-        $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Edit User');
+    $('#modal-form').modal('show');
+    $('#modal-form .modal-title').text('Edit User');
 
-        $('#modal-form form')[0].reset();
-        $('#modal-form form').attr('action', url);
-        $('#modal-form [name=_method]').val('put');
-        $('#modal-form [name=name]').focus();
+    $('#modal-form form')[0].reset();
+    $('#modal-form form').attr('action', url);
+    $('#modal-form [name=_method]').val('put');
+    $('#modal-form [name=name]').focus();
 
-        $('#password, #password_confirmation').attr('required', false);
+    $('#password, #password_confirmation').attr('required', false);
 
-        $.get(url)
-            .done((response) => {
-                $('#modal-form [name=name]').val(response.name);
-                $('#modal-form [name=email]').val(response.email);
-                $('#modal-form [name=alamat]').val(response.kasir.alamat); 
-                $('#modal-form [name=nomor_hp]').val(response.kasir.nomor_hp);
-            })
-            .fail((errors) => {
-                alert('Tidak dapat menampilkan data');
-                return;
-            });
-    }
+    $.get(url)
+        .done((response) => {
+            $('#modal-form [name=name]').val(response.name);
+            $('#modal-form [name=email]').val(response.email);
+            $('#modal-form [name=alamat]').val(response.kasir.alamat); 
+            $('#modal-form [name=nomor_hp]').val(response.kasir.nomor_hp);
+        })
+        .fail((errors) => {
+            alert('Tidak dapat menampilkan data');
+            return;
+        });
+}
+
 
     function deleteData(url) {
         if (confirm('Yakin ingin menghapus data terpilih?')) {
