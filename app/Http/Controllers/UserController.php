@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Kasir;
@@ -60,49 +60,29 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-            'alamat' => 'required|string|max:255',
-            'nomor_hp' => 'required|string|max:15',
-        ]);
-        
-        // Panggil stored procedure store_user
-        DB::select('CALL store_user(?, ?, ?, ?, ?, ?, ?, ?, ?)', [
-            $request->name,
-            $request->email,
-            bcrypt($request->password),
-            '/img/user.jpg', // Foto default
-            2,               // Level default (e.g., kasir)
-            null,            // Remember token
-            null,            // Profile photo path
-            $request->nomor_hp,
-            $request->alamat,
-        ]);
-    // $request->validate([
-    //     'name' => 'required|string|max:255',
-    //     'email' => 'required|email|unique:users,email',
-    //     'password' => 'required|string|min:6|confirmed',
-    //     'alamat' => 'required|string|max:255',
-    //     'nomor_hp' => 'required|string|max:15',
-    // ]);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:6|confirmed',
+        'alamat' => 'required|string|max:255',
+        'nomor_hp' => 'required|string|max:15',
+    ]);
 
-    //     $user = new User();
-    //     $user->name = $request->name;
-    //     $user->email = $request->email;
-    //     $user->password = bcrypt($request->password);
-    //     $user->level = 2;
-    //     $user->foto = '/img/user.jpg';
-    //     $user->save();
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->level = 2;
+        $user->foto = '/img/user.jpg';
+        $user->save();
 
-    //     $kasir = new Kasir(); 
-    //     $kasir->id_user = $user->id;
-    //     $kasir->nomor_hp = $request->nomor_hp;
-    //     $kasir->alamat = $request->alamat;
-    //     $kasir->save();
+        $kasir = new Kasir(); 
+        $kasir->id_user = $user->id;
+        $kasir->nomor_hp = $request->nomor_hp;
+        $kasir->alamat = $request->alamat;
+        $kasir->save();
 
-    //     return response()->json('Data berhasil disimpan', 200);
+        return response()->json('Data berhasil disimpan', 200);
     }
 
     /**
@@ -137,56 +117,30 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6|confirmed',
-            'alamat' => 'required|string|max:255',
-            'nomor_hp' => 'required|string|max:15',
-        ]);
+{
+    $user = User::find($id);
 
-        // Hash password jika diisi
-        $hashedPassword = $request->password ? bcrypt($request->password) : null;
+    // Update user data
+    $user->name = $request->name;
+    $user->email = $request->email;
 
-        // Panggil stored procedure update_user
-        DB::select('CALL update_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
-            $id,
-            $request->name,
-            $request->email,
-            $hashedPassword,
-            '/img/user.jpg', // Foto default (bisa diganti jika ada fitur upload)
-            2,               // Level default
-            null,            // Remember token
-            null,            // Profile photo path
-            $request->nomor_hp,
-            $request->alamat,
-        ]);
-
-    return response()->json('Data berhasil diperbarui', 200);
-    // $user = User::find($id);
-
-    // // Update user data
-    // $user->name = $request->name;
-    // $user->email = $request->email;
-
-    // // Update password jika ada
-    // if ($request->has('password') && $request->password != "") {
-    //     $user->password = bcrypt($request->password);
-    // }
-
-    // // Simpan data user
-    // $user->save();
-
-    // // Update data kasir (alamat dan nomor_hp)
-    // if ($user->kasir) {
-    //     $user->kasir->alamat = $request->alamat;
-    //     $user->kasir->nomor_hp = $request->nomor_hp;
-    //     $user->kasir->save();
-    // }
-
-    // return response()->json('Data berhasil disimpan', 200);
+    // Update password jika ada
+    if ($request->has('password') && $request->password != "") {
+        $user->password = bcrypt($request->password);
     }
+
+    // Simpan data user
+    $user->save();
+
+    // Update data kasir (alamat dan nomor_hp)
+    if ($user->kasir) {
+        $user->kasir->alamat = $request->alamat;
+        $user->kasir->nomor_hp = $request->nomor_hp;
+        $user->kasir->save();
+    }
+
+    return response()->json('Data berhasil disimpan', 200);
+}
 
 
     /**
