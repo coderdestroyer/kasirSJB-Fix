@@ -20,7 +20,6 @@
                         <th>Tanggal</th>
                         <th>Total Item</th>
                         <th>Total Harga</th>
-                        <th>Total Bayar</th>
                         <th>Kasir</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
@@ -50,7 +49,6 @@
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'tanggal'},
                 {data: 'total_item'},
-                {data: 'total_harga'},
                 {data: 'total_harga'},
                 {data: 'kasir'},
                 {data: 'aksi', searchable: false, sortable: false},
