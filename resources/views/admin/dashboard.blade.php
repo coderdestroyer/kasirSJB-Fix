@@ -103,35 +103,36 @@
     </div>
 
     <!-- Card for Low Stock Products -->
-    <div class="col-lg-4 col-md-6 col-xs-12">
-        <div class="box box-danger">
-            <div class="box-header with-border">
-                <h3 class="box-title">Produk dengan Stok Paling Sedikit</h3>
-            </div>
-            <div class="box-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Nama Produk</th>
-                            <th>Stok</th>
-                            <th>Merk</th>
-                            <th>Kategori</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($stokLow as $produk)
-                            <tr>
-                                <td>{{ $produk->nama_produk }}</td>
-                                <td>{{ $produk->stok_produk }}</td>
-                                <td>{{ $produk->merk }}</td>
-                                <td>{{ $produk->kategori }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+<div class="col-lg-4 col-md-6 col-xs-12">
+    <div class="box box-danger">
+        <div class="box-header with-border">
+            <h3 class="box-title">Produk dengan Stok di Bawah Minimum</h3>
         </div>
-    </div>
+        <div class="box-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nama Produk</th>
+                        <th>Stok</th>
+                        <th>Stok Minimum</th>
+                        <th>Merk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($minStok as $produk)
+                        <tr>
+                            <td>{{ $produk->nama_produk }}</td>
+                            <td>{{ $produk->stok_produk }}</td>
+                            <td>{{ $produk->min_stok }}</td>
+                            <td>{{ $produk->merk }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div> <!-- Close 'box' div -->
+</div>
+
 
     <!-- Card for Today's Best Selling Products -->
     <div class="col-lg-4 col-md-6 col-xs-12">
