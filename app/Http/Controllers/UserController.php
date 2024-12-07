@@ -117,16 +117,31 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        $user = User::find($id);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->has('password') && $request->password != "") 
-        $user->password = bcrypt($request->password);
-        $user->update();
+{
+    $user = User::find($id);
 
-        return response()->json('Data berhasil disimpan', 200);
+    // Update user data
+    $user->name = $request->name;
+    $user->email = $request->email;
+
+    // Update password jika ada
+    if ($request->has('password') && $request->password != "") {
+        $user->password = bcrypt($request->password);
     }
+
+    // Simpan data user
+    $user->save();
+
+    // Update data kasir (alamat dan nomor_hp)
+    if ($user->kasir) {
+        $user->kasir->alamat = $request->alamat;
+        $user->kasir->nomor_hp = $request->nomor_hp;
+        $user->kasir->save();
+    }
+
+    return response()->json('Data berhasil disimpan', 200);
+}
+
 
     /**
      * Remove the specified resource from storage.
