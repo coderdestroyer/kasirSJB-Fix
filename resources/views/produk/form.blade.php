@@ -57,6 +57,13 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <label for="min_stok" class="col-lg-2 col-lg-offset-1 control-label">Minimum Stok</label>
+                        <div class="col-lg-6">
+                            <input type="number" name="min_stok" id="min_stok" class="form-control" value="0" required>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-sm btn-flat btn-primary"><i class="fa fa-save"></i> Simpan</button>

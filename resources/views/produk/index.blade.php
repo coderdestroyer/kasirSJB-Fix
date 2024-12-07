@@ -35,6 +35,7 @@
                             <th>Harga Beli</th>
                             <th>Harga Jual</th>
                             <th>Stok</th>
+                            <th>Stok Minimum</th>
                             <th width="15%"><i class="fa fa-cog"></i></th>
                         </thead>
                     </table>
@@ -69,6 +70,7 @@
                 {data: 'harga_beli'},
                 {data: 'harga_jual'},
                 {data: 'stok'},
+                {data: 'min_stok'},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });
@@ -123,6 +125,7 @@
                 $('#modal-form [name=harga_beli_produk]').val(response.harga_beli_produk);
                 $('#modal-form [name=harga_jual]').val(response.harga_jual);
                 $('#modal-form [name=stok_produk]').val(response.stok_produk);
+                $('#modal-form [name=min_stok]').val(response.min_stok);
             })
             .fail((errors) => {
                 alert('Tidak dapat menampilkan data');

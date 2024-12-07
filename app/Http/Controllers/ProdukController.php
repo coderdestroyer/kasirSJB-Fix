@@ -34,6 +34,7 @@ class ProdukController extends Controller
             'detail_produk.stok_produk',
             'detail_produk.merk',
             'detail_produk.harga_beli_produk',
+            'detail_produk.min_stok',
             'kategori.nama_kategori'
         )->get();
 
@@ -56,6 +57,9 @@ class ProdukController extends Controller
         })
         ->addColumn('stok', function ($produk) {
             return format_uang($produk->stok_produk);
+        })
+        ->addColumn('min_stok', function ($produk) {   // Menambahkan kolom min_stok
+            return format_uang($produk->min_stok);   // Menampilkan min_stok
         })
         ->addColumn('aksi', function ($produk) {
             return '
@@ -96,16 +100,18 @@ class ProdukController extends Controller
         'stok_produk' => 'required|integer|min:0',
         'merk' => 'nullable|string|max:255',
         'harga_beli_produk' => 'required|numeric|min:0',
+        'min_stok' => 'required|integer|min:0',
     ]);
 
     try {
-        DB::statement('CALL store_produk(?, ?, ?, ?, ?, ?)', [
+        DB::statement('CALL store_produk(?, ?, ?, ?, ?, ?, ?)', [
             $validatedData['nama_produk'],
             $validatedData['harga_jual'],
             $validatedData['id_kategori'],
             $validatedData['stok_produk'],
             $validatedData['merk'] ?? null,
             $validatedData['harga_beli_produk'],
+            $validatedData['min_stok'],
         ]);
 
         // Kembalikan respons berhasil
@@ -153,6 +159,7 @@ class ProdukController extends Controller
         'stok_produk' => 'required|integer',
         'merk' => 'required|string|max:100',
         'harga_beli_produk' => 'required|numeric',
+        'min_stok' => 'required|integer|min:0',
     ]);
 
     // Cari produk berdasarkan kode_produk
@@ -163,14 +170,15 @@ class ProdukController extends Controller
 
     // Panggil prosedur tersimpan
     try {
-        DB::statement('CALL update_produk(?, ?, ?, ?, ?, ?, ?)', [
-            $produk->kode_produk, // Ambil id_produk dari produk
+        DB::statement('CALL update_produk(?, ?, ?, ?, ?, ?, ?, ?)', [
+            $produk->kode_produk, 
             $request->input('nama_produk'),
             $request->input('id_kategori'),
             $request->input('harga_beli_produk'),
             $request->input('harga_jual'),
             $request->input('merk'),
             $request->input('stok_produk'),
+            $request->input('min_stok'),
         ]);
 
         return response()->json(['message' => 'Data berhasil diperbarui'], 200);
