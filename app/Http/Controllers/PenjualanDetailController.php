@@ -121,7 +121,7 @@ class PenjualanDetailController extends Controller
             'bayar' => $bayar,
             'bayarrp' => format_uang($bayar),
             'terbilang' => ucwords(terbilang($bayar). ' Rupiah'),
-            'kembalirp' => 'Rp. ' . $formattedKembalian,
+            'kembalirp' => $formattedKembalian,
             'kembali_terbilang' => ucwords(terbilang($kembali->kembalian ?? 0). ' Rupiah'),
         ];
 
