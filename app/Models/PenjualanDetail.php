@@ -15,11 +15,12 @@ class PenjualanDetail extends Model
 
     public function produk()
     {
-        return $this->hasOne(Produk::class, 'id_produk', 'id_produk');
+        return $this->belongsTo(Produk::class, 'nama_produk', 'nama_produk');
     }
 
     public function penjualan()
     {
         return $this->hasOne(Penjualan::class, 'nomor_invoice', 'nomor_invoice');
     }
+    
 }

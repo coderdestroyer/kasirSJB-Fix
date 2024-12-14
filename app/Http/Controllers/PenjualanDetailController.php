@@ -36,8 +36,8 @@ class PenjualanDetailController extends Controller
     {
         $totalHarga = DB::selectOne("SELECT total_harga(?) AS total_price", [$id]);
 
-        $detail = PenjualanDetail::where('nomor_invoice', $id)
-            ->get();
+        $detail = PenjualanDetail::with('produk')->where('nomor_invoice', $id)->get();
+
     
         $data = [];
         $total = 0;
@@ -50,7 +50,7 @@ class PenjualanDetailController extends Controller
             $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" data-id="'. $item->id_penjualan_detail .'" value="'. $item->jumlah .'">';
             $row['subtotal']    = 'Rp. '. format_uang($item->harga_jual_produk * $item->jumlah);
             $row['aksi']        = '<div class="btn-group">
-                                    <button onclick="deleteData(`'. route('transaksi.destroy', $item->id_penjualan_detail) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                                    <button onclick="deleteData('. route('transaksi.destroy', $item->id_penjualan_detail) .')" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
                                   </div>';
             $data[] = $row;
 
@@ -127,4 +127,6 @@ class PenjualanDetailController extends Controller
 
         return response()->json($data);
     }
+
+    
 }

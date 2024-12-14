@@ -8,7 +8,6 @@
 
     <style>
         table td {
-            /* font-family: Arial, Helvetica, sans-serif; */
             font-size: 14px;
         }
         table.data td,
@@ -28,33 +27,30 @@
     </style>
 </head>
 <body>
+    <div class="text-center">
+        <h3>{{ strtoupper($setting->nama_perusahaan) }}</h3>
+        <p>{{ $setting->alamat }}</p>
+    </div>
+
     <table width="100%">
         <tr>
-            <td rowspan="4" width="60%">
-                <img src="{{ public_path($setting->path_logo) }}" alt="{{ $setting->path_logo }}" width="120">
-                <br>
-                {{ $setting->alamat }}
-                <br>
-                <br>
-            </td>
             <td>Tanggal</td>
-            <td>: {{ tanggal_indonesia(date('Y-m-d')) }}</td>
+            <td>: {{ tanggal_indonesia($penjualan->tanggal_penjualan) }}</td>
         </tr>
         <tr>
-            <td>Kode Member</td>
-            <td>: {{ $penjualan->member->kode_member ?? '' }}</td>
+            <td>Nomor Invoice</td>
+            <td>: {{ tambah_nol_didepan($penjualan->nomor_invoice, 10) }}</td>
         </tr>
     </table>
 
+    <br>
     <table class="data" width="100%">
         <thead>
             <tr>
                 <th>No</th>
-                <th>Kode</th>
-                <th>Nama</th>
+                <th>Nama Produk</th>
                 <th>Harga Satuan</th>
                 <th>Jumlah</th>
-                <th>Diskon</th>
                 <th>Subtotal</th>
             </tr>
         </thead>
@@ -62,49 +58,32 @@
             @foreach ($detail as $key => $item)
                 <tr>
                     <td class="text-center">{{ $key+1 }}</td>
-                    <td>{{ $item->produk->nama_produk }}</td>
-                    <td>{{ $item->produk->kode_produk }}</td>
-                    <td class="text-right">{{ format_uang($item->harga_jual) }}</td>
-                    <td class="text-right">{{ format_uang($item->jumlah) }}</td>
-                    <td class="text-right">{{ $item->diskon }}</td>
-                    <td class="text-right">{{ format_uang($item->subtotal) }}</td>
+                    <td>{{ $item->produk->nama_produk ?? 'Produk tidak ditemukan' }}</td>
+                    <td class="text-right">{{ format_uang($item->harga_jual_produk) }}</td>
+                    <td class="text-right">{{ $item->jumlah }}</td>
+                    <td class="text-right">{{ format_uang($item->jumlah * $item->harga_jual_produk) }}</td>
                 </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="6" class="text-right"><b>Total Harga</b></td>
+                <td colspan="4" class="text-right"><b>Total Harga</b></td>
                 <td class="text-right"><b>{{ format_uang($penjualan->total_harga) }}</b></td>
             </tr>
             <tr>
-                <td colspan="6" class="text-right"><b>Diskon</b></td>
-                <td class="text-right"><b>{{ format_uang($penjualan->diskon) }}</b></td>
-            </tr>
-            <tr>
-                <td colspan="6" class="text-right"><b>Total Bayar</b></td>
+                <td colspan="4" class="text-right"><b>Total Bayar</b></td>
                 <td class="text-right"><b>{{ format_uang($penjualan->bayar) }}</b></td>
             </tr>
             <tr>
-                <td colspan="6" class="text-right"><b>Diterima</b></td>
+                <td colspan="4" class="text-right"><b>Diterima</b></td>
                 <td class="text-right"><b>{{ format_uang($penjualan->diterima) }}</b></td>
-            </tr>
-            <tr>
-                <td colspan="6" class="text-right"><b>Kembali</b></td>
-                <td class="text-right"><b>{{ format_uang($penjualan->diterima - $penjualan->bayar) }}</b></td>
             </tr>
         </tfoot>
     </table>
 
-    <table width="100%">
-        <tr>
-            <td><b>Terimakasih telah berbelanja dan sampai jumpa</b></td>
-            <td class="text-center">
-                Kasir
-                <br>
-                <br>
-                {{ auth()->user()->name }}
-            </td>
-        </tr>
-    </table>
+    <div class="text-center">
+        <p>-- Terima Kasih Telah Berbelanja --</p>
+        <p>Kasir: {{ auth()->user()->name }}</p>
+    </div>
 </body>
 </html>
