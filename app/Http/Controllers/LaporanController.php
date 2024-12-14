@@ -113,4 +113,3 @@ class LaporanController extends Controller
 
         return $pdf->stream('Laporan-Pendapatan-' . date('Y-m-d-His') . '.pdf');
     }
-}
