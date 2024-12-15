@@ -15,14 +15,14 @@ class CreateProcedureStoreUpdateProduk extends Migration
     public function up()
     {
         DB::unprepared("
-        CREATE DEFINER=`root`@`localhost` PROCEDURE `store_produk`(
+        CREATE DEFINER=root@localhost PROCEDURE store_produk(
             IN in_nama_produk VARCHAR(255),
             IN in_harga_jual DECIMAL(10, 2),
             IN in_id_kategori INT,
             IN in_stok_produk INT,
             IN in_merk VARCHAR(255),
             IN in_harga_beli_produk DECIMAL(10, 2),
-            IN in_min_stok INT -- Parameter baru untuk min_stok
+            IN in_min_stok INT
         )
         BEGIN
             DECLARE last_inserted_id INT;
@@ -38,16 +38,16 @@ class CreateProcedureStoreUpdateProduk extends Migration
             -- Mulai transaksi
             START TRANSACTION;
 
-            -- Insert data ke tabel produk
-            INSERT INTO produk (nama_produk, harga_jual, id_kategori)
-            VALUES (in_nama_produk, in_harga_jual, in_id_kategori);
+            -- Insert data ke tabel produk dengan created_at dan updated_at
+            INSERT INTO produk (nama_produk, harga_jual, id_kategori, created_at, updated_at)
+            VALUES (in_nama_produk, in_harga_jual, in_id_kategori, NOW(), NOW());
 
             -- Dapatkan ID yang baru saja di-insert
             SET last_inserted_id = LAST_INSERT_ID();
 
-            -- Insert data ke tabel detail_produk dengan memasukkan min_stok
-            INSERT INTO detail_produk (kode_produk, stok_produk, merk, harga_beli_produk, min_stok)
-            VALUES (last_inserted_id, in_stok_produk, in_merk, in_harga_beli_produk, in_min_stok);
+            -- Insert data ke tabel detail_produk dengan created_at dan updated_at
+            INSERT INTO detail_produk (kode_produk, stok_produk, merk, harga_beli_produk, min_stok, created_at, updated_at)
+            VALUES (last_inserted_id, in_stok_produk, in_merk, in_harga_beli_produk, in_min_stok, NOW(), NOW());
 
             -- Jika tidak ada error, commit transaksi
             IF NOT error_occurred THEN
@@ -57,7 +57,7 @@ class CreateProcedureStoreUpdateProduk extends Migration
         ");
 
         DB::unprepared("
-        CREATE DEFINER=`root`@`localhost` PROCEDURE `update_produk`(
+        CREATE DEFINER=root@localhost PROCEDURE update_produk(
             IN p_kode_produk VARCHAR(50),
             IN p_nama_produk VARCHAR(255),
             IN p_kategori INT,
@@ -65,7 +65,7 @@ class CreateProcedureStoreUpdateProduk extends Migration
             IN p_harga_jual DECIMAL(10, 2),
             IN p_merk VARCHAR(100),
             IN p_stok_produk INT,
-            IN p_min_stok INT -- Parameter baru untuk min_stok
+            IN p_min_stok INT
         )
         BEGIN
             DECLARE error_occurred INT DEFAULT 0;
@@ -80,22 +80,24 @@ class CreateProcedureStoreUpdateProduk extends Migration
             -- Mulai transaksi
             START TRANSACTION;
 
-            -- Update tabel produk
+            -- Update tabel produk dengan updated_at
             UPDATE produk
             SET 
                 nama_produk = p_nama_produk,
                 id_kategori = p_kategori,
-                harga_jual = p_harga_jual
+                harga_jual = p_harga_jual,
+                updated_at = NOW()
             WHERE 
                 kode_produk = p_kode_produk;
 
-            -- Update tabel detail_produk dengan memperbarui min_stok
+            -- Update tabel detail_produk dengan updated_at
             UPDATE detail_produk
             SET 
                 harga_beli_produk = p_harga_beli,
                 stok_produk = p_stok_produk,
                 merk = p_merk,
-                min_stok = p_min_stok -- Menambahkan update untuk min_stok
+                min_stok = p_min_stok,
+                updated_at = NOW()
             WHERE 
                 kode_produk = p_kode_produk;
 
