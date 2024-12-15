@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
+use App\Models\Cart;
 use App\Models\Produk;
 use App\Models\DetailProduk;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use PDF;
 
 class PenjualanController extends Controller
@@ -63,14 +65,20 @@ class PenjualanController extends Controller
 
     public function create()
     {
-        $penjualan = new Penjualan();
-        $penjualan->timestamps = false;
-        $penjualan->id_user = auth()->id();
-        $penjualan->id_kasir = auth()->id();
-        $penjualan->tanggal_penjualan = now(); 
-        $penjualan->save();
+        // $penjualan = new Penjualan();
+        // $penjualan->timestamps = false;
+        // $penjualan->id_user = auth()->id();
+        // $penjualan->id_kasir = auth()->id();
+        // $penjualan->tanggal_penjualan = now(); 
+        // $penjualan->save();
 
-        session(['nomor_invoice' => $penjualan->nomor_invoice]);
+        // session(['nomor_invoice' => $penjualan->nomor_invoice]);
+        // return redirect()->route('transaksi.index');
+        DB::table('cart')->where('id_user', auth()->id())->delete();
+        $lastPenjualan = Penjualan::orderBy('nomor_invoice', 'desc')->first();
+        $newInvoiceNumber = $lastPenjualan ? $lastPenjualan->id_penjualan + 1 : 1;
+        session(['nomor_invoice' => $newInvoiceNumber]);
+
         return redirect()->route('transaksi.index');
     }
 
@@ -93,18 +101,59 @@ class PenjualanController extends Controller
     // }
      public function store(Request $request)
     {
-        $penjualan = Penjualan::findOrFail($request->id_penjualan);
+        // $penjualan = Penjualan::findOrFail($request->id_penjualan);
+        // $penjualan->created_at = now();
+        // $penjualan->updated_at = now();
+        // $penjualan->update();
+
+        // $detail = PenjualanDetail::where('nomor_invoice', $penjualan->id_penjualan)->get();
+        // foreach ($detail as $item) {
+        //     $item->update();
+        //     $detailProduk = DetailProduk::where('kode_produk', $item->kode_produk)->first();
+        //     $detailProduk->stok_produk -= $item->jumlah;
+        //     $detailProduk->update();
+        // }
+
+        // return redirect()->route('transaksi.selesai');
+        $cartItems = Cart::where('id_user', auth()->id())->get();
+
+        // Step 2: Create a new Penjualan (Transaction)
+        $penjualan = new Penjualan();
+        $penjualan->id_user = auth()->id();
+        $penjualan->id_kasir = auth()->id();
         $penjualan->created_at = now();
         $penjualan->updated_at = now();
-        $penjualan->update();
+        $penjualan->tanggal_penjualan = now();
 
-        $detail = PenjualanDetail::where('nomor_invoice', $penjualan->id_penjualan)->get();
-        foreach ($detail as $item) {
-            $item->update();
-            $detailProduk = DetailProduk::where('kode_produk', $item->kode_produk)->first();
-            $detailProduk->stok_produk -= $item->jumlah;
-            $detailProduk->update();
+        // Save the Penjualan (transaction)
+        $penjualan->save();
+        $nomor_invoice = $penjualan->nomor_invoice;  // This gets the last inserted ID (auto-incremented)
+
+        // Step 3: Create PenjualanDetail for each cart item
+        foreach ($cartItems as $item) {
+            // Get the product details from the Produk table
+            $produk = Produk::find($item->kode_produk);
+
+            if ($produk) {
+                $penjualanDetail = new PenjualanDetail();
+                $penjualanDetail->nomor_invoice = $nomor_invoice;  
+                $penjualanDetail->nama_produk = $produk->nama_produk; 
+                $penjualanDetail->harga_jual_produk = $produk->harga_jual;  
+                $penjualanDetail->jumlah = $item->jumlah; 
+                $penjualanDetail->created_at = now();
+                $penjualanDetail->updated_at = now();
+                $penjualanDetail->save();
+
+                $detailProduk = DetailProduk::where('kode_produk', $item->kode_produk)->first();
+                if ($detailProduk) {
+                    $detailProduk->stok_produk -= $item->jumlah;  // Deduct stock
+                    $detailProduk->update();
+                }
+            }
         }
+
+        // Step 5: Delete the cart items after processing
+        Cart::where('id_user', auth()->id())->delete();
 
         return redirect()->route('transaksi.selesai');
     }

@@ -58,12 +58,17 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/pembelian/{id}/create', [PembelianController::class, 'create'])->name('pembelian.create');
         Route::resource('/pembelian', PembelianController::class)
             ->except('create');
+            //tambahan
+        Route::get('/pembelian/{id}/edit', [PembelianController::class, 'edit'])->name('pembelian.edit');
+        Route::put('/pembelian/{id}/update-payment', [PembelianController::class, 'updatePayment'])->name('pembelian.updatePayment');
 
         Route::get('/pembelian_detail/{id}/data', [PembelianDetailController::class, 'data'])->name('pembelian_detail.data');
         Route::get('/pembelian_detail/loadform/{total}', [PembelianDetailController::class, 'loadForm'])->name('pembelian_detail.load_form');
         Route::post('/pembelian_detail/selectproduk', [PembelianDetailController::class, 'store'])->name('pembelian_detail.selectproduk');
         Route::resource('/pembelian_detail', PembelianDetailController::class)
             ->except('create', 'show', 'edit');
+            //tambahan
+        Route::put('/cart_pembelian/{id}/update_uom', [PembelianDetailController::class, 'updateUOM']);
 
         Route::get('/penjualan/data', [PenjualanController::class, 'data'])->name('penjualan.data');
         Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
@@ -79,7 +84,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/transaksi/nota-kecil', [PenjualanController::class, 'notaKecil'])->name('transaksi.nota_kecil');
         Route::get('/transaksi/nota-besar', [PenjualanController::class, 'notaBesar'])->name('transaksi.nota_besar');
 
-        Route::get('/transaksi/{id}/data', [PenjualanDetailController::class, 'data'])->name('transaksi.data');
+        Route::get('/transaksi/data', [PenjualanDetailController::class, 'data'])->name('transaksi.data');
+        // Route::get('/transaksi/{id}/data', [PenjualanDetailController::class, 'data'])->name('transaksi.data');
         Route::get('/transaksi/loadform/{diskon}/{total}/{diterima}', [PenjualanDetailController::class, 'loadForm'])->name('transaksi.load_form');
         Route::resource('/transaksi', PenjualanDetailController::class)
             ->except('create', 'show', 'edit');
