@@ -22,4 +22,10 @@ class Pembelian extends Model
     {
         return $this->hasMany(PembelianDetail::class, 'id_pembelian');
     }
+
+    // Hubungan dengan model CartPembelian
+    public function cartPembelian()
+    {
+        return $this->hasMany(CartPembelian::class, 'id_pembelian');
+    }
 }
