@@ -17,4 +17,15 @@ class CartPembelian extends Model
     {
         return $this->belongsTo(Produk::class, 'kode_produk', 'kode_produk');
     }
+    // Hubungan dengan model Pembelian
+    public function pembelian()
+    {
+        return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id_pembelian');
+    }
+
+    // Hubungan dengan model Supplier
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'id_supplier', 'id_supplier');
+    }
 }

@@ -72,6 +72,9 @@ class PenjualanController extends Controller
         // $penjualan->tanggal_penjualan = now(); 
         // $penjualan->save();
 
+        // Hapus session lama jika ada
+        session()->forget('nomor_invoice');
+
         // session(['nomor_invoice' => $penjualan->nomor_invoice]);
         // return redirect()->route('transaksi.index');
         DB::table('cart')->where('id_user', auth()->id())->delete();
@@ -154,6 +157,9 @@ class PenjualanController extends Controller
 
         // Step 5: Delete the cart items after processing
         Cart::where('id_user', auth()->id())->delete();
+
+        // Simpan nomor invoice ke dalam session
+        session(['nomor_invoice' => $penjualan->nomor_invoice]);
 
         return redirect()->route('transaksi.selesai');
     }
