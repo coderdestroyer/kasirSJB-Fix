@@ -197,10 +197,7 @@ class PembelianController extends Controller
 
     public function show($id)
     {
-        $detail = PembelianDetail::selectRaw("
-                pembelian_detail.*, 
-                hitung_harga_beli_produk(id_pembelian_detail) as subtotal
-            ")
+        $detail = DB::table('view_pembelian_detail')
             ->where('id_pembelian', $id)
             ->get();
 
