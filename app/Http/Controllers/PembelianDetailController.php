@@ -59,7 +59,7 @@ class PembelianDetailController extends Controller
                 $row['uom']         = $uomDropdown; 
                 $row['subtotal']    = 'Rp. ' . format_uang($produk->detailProduk->harga_beli_produk * $item->jumlah);
                 $row['aksi']        = '<div class="btn-group">
-                                    <button onclick="deleteData(`' . route('pembelian_detail.destroy', $item->id_cart_pembelian) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                                    <button onclick="deleteData(' . route('pembelian_detail.destroy', $item->id_cart_pembelian) . ')" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
                                 </div>';
                 $data[] = $row;
 
@@ -147,26 +147,49 @@ class PembelianDetailController extends Controller
     }
 
     public function updateUOM(Request $request, $id)
-    {
-        // Cari data cart berdasarkan id
-        $cartItem = DB::table('cart_pembelian')->where('id_cart_pembelian', $id)->first();
+{
+    // Cari data cart berdasarkan id
+    $cartItem = DB::table('cart_pembelian')->where('id_cart_pembelian', $id)->first();
 
-        // Pastikan item ditemukan
-        if (!$cartItem) {
-            return response()->json('Data tidak ditemukan', 404);
-        }
-
-        $validUOMs = ['pieces', 'dus', 'roll']; 
-        if (!in_array($request->uom, $validUOMs)) {
-            return response()->json('UOM tidak valid', 400);
-        }
-
-        DB::table('cart_pembelian')
-        ->where('id_cart_pembelian', $id)
-            ->update(['uom' => $request->uom]);
-
-        return response()->json('UOM berhasil diupdate', 200);
+    if (!$cartItem) {
+        return response()->json('Data tidak ditemukan', 404);
     }
+
+    $validUOMs = ['pieces', 'dus', 'roll']; 
+    if (!in_array($request->uom, $validUOMs)) {
+        return response()->json('UOM tidak valid', 400);
+    }
+
+    // Konversi UOM ke jumlah stok
+    $konversiUOM = [
+        'pieces' => 1,
+        'dus'    => 50,  // 1 dus = 50 pieces
+        'roll'   => 100,  // 1 roll = 10 pieces
+    ];
+
+    // Ambil data produk
+    $produk = Produk::where('kode_produk', $cartItem->kode_produk)->first();
+    if (!$produk) {
+        return response()->json('Produk tidak ditemukan', 404);
+    }
+
+    // Hitung jumlah baru dan subtotal
+    $jumlahBaru = $konversiUOM[$request->uom];
+    $hargaBaru = $produk->detailProduk->harga_beli_produk * $jumlahBaru;
+
+    // Update di database
+    DB::table('cart_pembelian')->where('id_cart_pembelian', $id)->update([
+        'uom' => $request->uom,
+        'jumlah' => $jumlahBaru,
+    ]);
+
+    return response()->json([
+        'jumlah' => $jumlahBaru,
+        'harga' => 'Rp. ' . format_uang($hargaBaru),
+        'subtotal' => 'Rp. ' . format_uang($hargaBaru),
+    ], 200);
+}
+
 
     public function destroy($id)
     {
