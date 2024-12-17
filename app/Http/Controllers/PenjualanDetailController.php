@@ -81,11 +81,14 @@ class PenjualanDetailController extends Controller
 
     public function data()
     {
-        $cartItems = DB::table('cart')->where('id_user', auth()->id())->get();
+        $user_id = auth()->id();  // Mengambil ID user yang sedang login
 
+        // Memanggil stored function untuk menghitung total harga
+        $total_harga = DB::select("SELECT calculate_total_harga(?) AS total_harga", [$user_id]);
+
+        $cartItems = DB::table('cart')->where('id_user', $user_id)->get();
         $data = [];
         $total_item = 0;
-        $total_harga = 0;
 
         foreach ($cartItems as $item) {
             $produk = Produk::find($item->kode_produk);
@@ -96,29 +99,30 @@ class PenjualanDetailController extends Controller
                 $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" data-id="' . $item->id_cart . '" value="' . $item->jumlah . '">';
                 $row['subtotal']    = 'Rp. ' . format_uang($produk->harga_jual * $item->jumlah);
                 $row['aksi']        = '<div class="btn-group">
-                                    <button onclick="deleteData(`' . route('transaksi.destroy', $item->id_cart) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                                  </div>';
+                                        <button onclick="deleteData(`' . route('transaksi.destroy', $item->id_cart) . '`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                                    </div>';
                 $data[] = $row;
 
                 $total_item += $item->jumlah;
-                $total_harga += $produk->harga_jual * $item->jumlah;
             }
-        }
+    }
 
-        $formattedTotal = number_format($total_harga, 2, ',', '.');
-        $data[] = [
-            'nama_produk' => '<div class="total hide">' . $total_harga . '</div>
-            <div class="total_item hide">' . $total_item . '</div>',
-            'harga_jual'  => '',
-            'jumlah'      => '',
-            'subtotal'    => '<strong>Total: Rp. ' . $formattedTotal . '</strong>',
-            'aksi'        => '',
-        ];
+            // Mengambil total harga dari stored function
+            $formattedTotal = number_format($total_harga[0]->total_harga, 2, ',', '.');
 
-        return datatables(collect($data))
-            ->addIndexColumn()
-            ->rawColumns(['aksi', 'nama_produk', 'jumlah'])
-            ->make(true);
+            $data[] = [
+                'nama_produk' => '<div class="total hide">' . $total_harga[0]->total_harga . '</div>
+                <div class="total_item hide">' . $total_item . '</div>',
+                'harga_jual'  => '',
+                'jumlah'      => '',
+                'subtotal'    => '<strong>Total: Rp. ' . $formattedTotal . '</strong>',
+                'aksi'        => '',
+            ];
+
+            return datatables(collect($data))
+                ->addIndexColumn()
+                ->rawColumns(['aksi', 'nama_produk', 'jumlah'])
+                ->make(true);
     }
 
 
