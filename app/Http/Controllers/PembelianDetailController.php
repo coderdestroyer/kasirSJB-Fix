@@ -104,21 +104,27 @@ class PembelianDetailController extends Controller
         $id_pembelian = session('id_pembelian');
         $id_supplier = session('id_supplier');
 
-        $cartItem = CartPembelian::where('id_pembelian', $id_pembelian)
-            ->where('kode_produk', $produk->kode_produk)
-            ->first();
+        // Memanggil stored procedure untuk menambah item ke dalam keranjang
+        DB::select('CALL add_item_to_cart_pembelian(?, ?, ?)', [
+            $id_pembelian, 
+            $produk->kode_produk, 
+            $id_supplier
+        ]);
+        // $cartItem = CartPembelian::where('id_pembelian', $id_pembelian)
+        //     ->where('kode_produk', $produk->kode_produk)
+        //     ->first();
 
-        if ($cartItem) {
-            $cartItem->jumlah += 1; 
-            $cartItem->save();
-        } else {
-            CartPembelian::create([
-                'id_supplier' => $id_supplier,
-                'id_pembelian' => $id_pembelian,
-                'kode_produk' => $produk->kode_produk,
-                'jumlah' => 1, 
-            ]);
-        }
+        // if ($cartItem) {
+        //     $cartItem->jumlah += 1; 
+        //     $cartItem->save();
+        // } else {
+        //     CartPembelian::create([
+        //         'id_supplier' => $id_supplier,
+        //         'id_pembelian' => $id_pembelian,
+        //         'kode_produk' => $produk->kode_produk,
+        //         'jumlah' => 1, 
+        //     ]);
+        // }
 
         return response()->json('Data berhasil disimpan', 200);
     }
