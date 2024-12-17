@@ -164,11 +164,11 @@ class PembelianController extends Controller
 
                 $jumlahProduk = $item->jumlah;
 
-                if ($item->uom == 'dus') {
-                    $jumlahProduk *= 50;
-                } elseif ($item->uom == 'roll') {
-                    $jumlahProduk *= 100;
-                }
+                // if ($item->uom == 'dus') {
+                //     $jumlahProduk *= 50;
+                // } elseif ($item->uom == 'roll') {
+                //     $jumlahProduk *= 100;
+                // }
 
                 $pembelianDetail->konversi_uom = $jumlahProduk;
                 $pembelianDetail->save();
