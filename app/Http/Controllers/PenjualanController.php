@@ -54,8 +54,14 @@ class PenjualanController extends Controller
             ->addColumn('aksi', function ($penjualan) {
                 return '
                 <div class="btn-group">
-                    <button onclick="showDetail('. route('penjualan.show', $penjualan->nomor_invoice) .')" class="btn btn-xs btn-info btn-flat"><i class="fa fa-eye"></i></button>
-                    <button onclick="deleteData('. route('penjualan.destroy', $penjualan->nomor_invoice) .')" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                    <button onclick="showDetail(\''. route('penjualan.show', $penjualan->nomor_invoice) .'\')" 
+                        class="btn btn-xs btn-info btn-flat">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                    <button onclick="deleteData(\''. route('penjualan.destroy', $penjualan->nomor_invoice) .'\')" 
+                        class="btn btn-xs btn-danger btn-flat">
+                        <i class="fa fa-trash"></i>
+                    </button>
                 </div>
                 ';
             })
