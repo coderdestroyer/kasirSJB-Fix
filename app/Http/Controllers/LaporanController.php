@@ -24,33 +24,36 @@ class LaporanController extends Controller
     }
 
     public function getDataPembelian($awal, $akhir)
-    {
-        $no = 1;
-        $data = [];
-        $totalSeluruhnya = 0;
-        $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$awal, $akhir])
-            ->withSum('detilPembelian', 'harga_beli_produk')
-            ->get();
+{
+    $no = 1;
+    $data = [];
+    $totalSeluruhnya = 0;
 
-        foreach ($pembelian as $item) {
-            if ($item->detil_pembelian_sum_harga_beli_produk > 0) {
-                $row = [];
-                // Cek apakah created_at tidak null sebelum format
-                $row['DT_RowIndex'] = $no++;
-                $row['tanggal'] = $item->created_at ? tanggal_indonesia($item->created_at->format('Y-m-d'), false) : 'Tanggal tidak tersedia';
-                $row['pembelian'] = 'Rp ' . format_uang($item->detil_pembelian_sum_harga_beli_produk);
-                $data[] = $row;
-                $totalSeluruhnya += $item->detil_pembelian_sum_harga_beli_produk;
-            }
-        }
-        $data[] = [
-            'DT_RowIndex' => '-',
-            'tanggal' => 'Total',
-            'pembelian' => 'Rp ' . format_uang($totalSeluruhnya),
-        ];
+    // Ambil data pembelian dalam rentang tanggal
+    $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$awal, $akhir])->get();
 
-        return $data;
+    foreach ($pembelian as $item) {
+        $row = [];
+        $row['DT_RowIndex'] = $no++;
+        $row['tanggal'] = $item->created_at 
+            ? tanggal_indonesia($item->created_at->format('Y-m-d'), false) 
+            : 'Tanggal tidak tersedia';
+        $row['pembelian'] = 'Rp ' . format_uang($item->jumlah_bayar);
+        $data[] = $row;
+
+        // Menambahkan ke total keseluruhan
+        $totalSeluruhnya += $item->jumlah_bayar;
     }
+
+    // Tambahkan baris total di akhir
+    $data[] = [
+        'DT_RowIndex' => '-',
+        'tanggal' => 'Total',
+        'pembelian' => 'Rp ' . format_uang($totalSeluruhnya),
+    ];
+
+    return $data;
+}
 
     public function getDataPenjualan($awal, $akhir)
     {
