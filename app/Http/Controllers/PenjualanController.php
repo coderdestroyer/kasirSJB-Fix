@@ -172,8 +172,11 @@ class PenjualanController extends Controller
 
     public function show($id)
     {   
-        $penjualan = Penjualan::find($id);
-        $detail = PenjualanDetail::where('nomor_invoice', $id)->get();
+        // $penjualan = Penjualan::find($id);
+        // $detail = PenjualanDetail::where('nomor_invoice', $id)->get();
+        $detail = DB::table('view_penjualan_detail')
+                ->where('nomor_invoice', $id)
+                ->get();
 
          return datatables()
              ->of($detail)
@@ -182,13 +185,13 @@ class PenjualanController extends Controller
                  return $detail->nama_produk;
              })
              ->addColumn('harga_jual', function ($detail) {
-                 return 'Rp. '. format_uang($detail->harga_jual_produk);
+                 return 'Rp. '. format_uang($detail->harga_jual);
              })
              ->addColumn('jumlah', function ($detail) {
                  return format_uang($detail->jumlah);
              })
              ->addColumn('subtotal', function ($detail) {
-                return format_uang($detail->jumlah * $detail->harga_jual_produk);
+                return format_uang((float) $detail->subtotal);
             })
              ->make(true);
     }
