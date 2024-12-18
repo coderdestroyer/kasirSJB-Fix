@@ -149,11 +149,16 @@ class PenjualanDetailController extends Controller
         }
 
         // Simpan produk ke tabel cart
-        $cart = new Cart();
-        $cart->id_user = auth()->id(); // id_user sesuai dengan user yang login
-        $cart->kode_produk = $produk->kode_produk;
-        $cart->jumlah = 1; // Jumlah awal, bisa diubah sesuai dengan permintaan user
-        $cart->save();
+        // $cart = new Cart();
+        // $cart->id_user = auth()->id(); // id_user sesuai dengan user yang login
+        // $cart->kode_produk = $produk->kode_produk;
+        // $cart->jumlah = 1; // Jumlah awal, bisa diubah sesuai dengan permintaan user
+        // $cart->save();
+        DB::statement("CALL add_item_to_cart(?, ?, ?)", [
+            auth()->id(),           // ID user yang login
+            $produk->kode_produk,   // Kode produk yang dipilih
+            1                       // Jumlah produk yang akan dimasukkan
+        ]);
 
 
         return response()->json('Produk berhasil ditambahkan ke cart', 200);

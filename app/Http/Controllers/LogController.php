@@ -10,9 +10,8 @@ class LogController extends Controller
     public function index()
 {
     // Mengambil log dengan pagination
-    $logs = Log::paginate(10); // 10 records per page
+    $logs = Log::orderBy('created_at', 'desc')->paginate(10);
     return view('logs.index', compact('logs'));
 }
-
 }
 
