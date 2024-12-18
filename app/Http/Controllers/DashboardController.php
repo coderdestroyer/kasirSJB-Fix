@@ -24,16 +24,8 @@ class DashboardController extends Controller
     $member = Kasir::count();
 
     // Ambil data produk dengan stok di bawah minimum
-    $minStok = DB::table('produk')
-    ->join('detail_produk', 'produk.kode_produk', '=', 'detail_produk.kode_produk')
-    ->select(
-        'produk.nama_produk',
-        'detail_produk.stok_produk',
-        'detail_produk.min_stok',
-        'detail_produk.merk' // Ambil merk dari detail_produk
-    )
-    ->whereColumn('detail_produk.stok_produk', '<', 'detail_produk.min_stok')
-    ->get();
+    $minStok = DB::table('produk_below_min_stok')->get();
+
 
 
     // Produk terlaris
