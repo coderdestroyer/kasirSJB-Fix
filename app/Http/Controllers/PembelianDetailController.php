@@ -167,20 +167,23 @@ class PembelianDetailController extends Controller
     }
 
     // Konversi UOM ke jumlah stok
-    $konversiUOM = [
-        'pieces' => 1,
-        'dus'    => 50,  // 1 dus = 50 pieces
-        'roll'   => 100,  // 1 roll = 10 pieces
-    ];
+    // $konversiUOM = [
+    //     'pieces' => 1,
+    //     'dus'    => 50,  // 1 dus = 50 pieces
+    //     'roll'   => 100,  // 1 roll = 10 pieces
+    // ];
 
     // Ambil data produk
     $produk = Produk::where('kode_produk', $cartItem->kode_produk)->first();
     if (!$produk) {
         return response()->json('Produk tidak ditemukan', 404);
     }
+    $jumlahBaru = DB::selectOne('SELECT convert_uom(?, ?) AS jumlah', [
+        $cartItem->jumlah,
+        $request->uom
+    ])->jumlah;
 
-    // Hitung jumlah baru dan subtotal
-    $jumlahBaru = $konversiUOM[$request->uom];
+    // Hitung subtotal baru berdasarkan jumlah hasil konversi
     $hargaBaru = $produk->detailProduk->harga_beli_produk * $jumlahBaru;
 
     // Update di database
@@ -194,6 +197,21 @@ class PembelianDetailController extends Controller
         'harga' => 'Rp. ' . format_uang($hargaBaru),
         'subtotal' => 'Rp. ' . format_uang($hargaBaru),
     ], 200);
+    // // Hitung jumlah baru dan subtotal
+    // $jumlahBaru = $konversiUOM[$request->uom];
+    // $hargaBaru = $produk->detailProduk->harga_beli_produk * $jumlahBaru;
+
+    // // Update di database
+    // DB::table('cart_pembelian')->where('id_cart_pembelian', $id)->update([
+    //     'uom' => $request->uom,
+    //     'jumlah' => $jumlahBaru,
+    // ]);
+
+    // return response()->json([
+    //     'jumlah' => $jumlahBaru,
+    //     'harga' => 'Rp. ' . format_uang($hargaBaru),
+    //     'subtotal' => 'Rp. ' . format_uang($hargaBaru),
+    // ], 200);
 }
 
 
