@@ -115,7 +115,6 @@
                         <th>Nama Produk</th>
                         <th>Stok</th>
                         <th>Stok Minimum</th>
-                        <th>Merk</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -124,7 +123,6 @@
                             <td>{{ $produk->nama_produk }}</td>
                             <td>{{ $produk->stok_produk }}</td>
                             <td>{{ $produk->min_stok }}</td>
-                            <td>{{ $produk->merk }}</td>
                         </tr>
                     @endforeach
                 </tbody>
